@@ -111,7 +111,7 @@ def read_csv_sftp(hostname: str, username: str, remotepath: str, *args, **kwargs
     # open an SSH connection
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=username, key_filename="C:\\Users\\gusta\\.ssh\\gcp")
+    client.connect(hostname, username=username, key_filename="PATH_TO_PRIVATE_KEY")
     # read the file using SFTP
     sftp = client.open_sftp()
     remote_file = sftp.open(remotepath)
