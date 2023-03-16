@@ -2,22 +2,39 @@ import requests
 import pandas as pd
 import paramiko
 
-# direct link to market data json (from https://www.coinglass.com/funding/BTC -> Inspect -> Network)
+# API: https://coinglass.readme.io/reference/getting-started-with-your-api
+
 URLS= {
-    'fr_usdt': "https://fapi.coinglass.com/api/fundingRate/v2/history/chart?symbol=BTC&type=U&interval=h8",
-    'fr_token': "https://fapi.coinglass.com/api/fundingRate/v2/history/chart?symbol=BTC&type=C&interval=h8",
-    'oi': 'https://fapi.coinglass.com/api/openInterest/v3/chart?symbol=BTC&timeType=0&exchangeName=&currency=USD&type=0'
+    'fr_usdt': "https://open-api.coinglass.com/public/v2/funding_usd_history?symbol=BTC&time_type=h8",
+    'fr_token': "https://open-api.coinglass.com/public/v2/funding_coin_history?symbol=BTC&time_type=h8",
+    'oi': 'https://open-api.coinglass.com/public/v2/open_interest_history?symbol=BTC&time_type=all&currency=USD'
 }
 
 
-def get_df_from_url(data_type, round_5min=True):
+def get_api_key():
+    with open('api_key.txt', 'r') as k:
+        api_key = k.readline()
+
+    return api_key
+
+
+def get_df_from_url(data_type, api_key, round_5min=True):
     # data_type can be 'fr_usdt', 'fr_token' or 'oi'
     
-    r = requests.get(URLS[data_type])
+    headers = {
+    "accept": "application/json",
+    "coinglassSecret": api_key
+    }
+
+    r = requests.get(URLS[data_type], headers=headers)
     data = r.json()
     
     df = pd.DataFrame(data['data']['dataMap'])
     
+    # DELETE SCAM FTX 
+    if 'FTX' in df.columns:
+        del df['FTX']
+
     if round_5min:
         se_dates = pd.Series(pd.to_datetime(data['data']['dateList'], unit='ms')).dt.round("5min")
     else:
@@ -111,7 +128,9 @@ def read_csv_sftp(hostname: str, username: str, remotepath: str, *args, **kwargs
     # open an SSH connection
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=username, key_filename="PATH_TO_PRIVATE_KEY")
+    
+    client.connect(hostname, username=username, key_filename="C:\\Users\\gusta\\.ssh\\id_rsa")
+
     # read the file using SFTP
     sftp = client.open_sftp()
     remote_file = sftp.open(remotepath)

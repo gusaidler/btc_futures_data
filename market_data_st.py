@@ -14,12 +14,14 @@ st.set_page_config(
     layout="wide"
     )
 
+api_key = get_api_key()
+
 @st.cache()
 def get_data():
 
-    df_usdt = get_df_from_url('fr_usdt')
-    df_token = get_df_from_url('fr_token')
-    df_oi = get_df_from_url('oi')
+    df_usdt = get_df_from_url('fr_usdt', api_key)
+    df_token = get_df_from_url('fr_token', api_key)
+    df_oi = get_df_from_url('oi', api_key)
 
     df_usdt = get_weighted_mean_funding_rate(df_usdt, df_oi)
     df_token = get_weighted_mean_funding_rate(df_token, df_oi)

@@ -6,12 +6,13 @@ if len(sys.argv) == 2 and (sys.argv[1] == 'minute' or sys.argv[1] =='hour'):
 else:
     sys.exit("Program argument must be 'minute' or 'hour', aborting...")
 
+api_key = get_api_key()
 
 while True:
     try:
-        df_usdt = get_df_from_url('fr_usdt', round_5min=False)
-        df_token = get_df_from_url('fr_token', round_5min=False)
-        df_oi = get_df_from_url('oi', round_5min=False)
+        df_usdt = get_df_from_url('fr_usdt', api_key, round_5min=False)
+        df_token = get_df_from_url('fr_token', api_key, round_5min=False)
+        df_oi = get_df_from_url('oi', api_key, round_5min=False)
     except Exception as e:
         continue
 
